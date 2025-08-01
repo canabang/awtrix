@@ -1,0 +1,23 @@
+alias: customapp temp_cham
+description: ""
+triggers:
+  - entity_id:
+      - sensor.temperature_chambre
+    id: tempcham
+    trigger: state
+conditions: []
+actions:
+  - variables:
+      temp_cham: |
+        {{ "Chambre" + " " + states('sensor.temperature_chambre')  + "°C" }}
+      color: "{% set state = states('sensor.temperature_chambre') %}  \n  {% if state >= '23' %}\n    #8b0000\t\n  {% elif state >= '19' %}\n    #2e8b57\n  {% else %}\n    #0000ff\n  {% endif %}\n"
+  - action: script.awtrix_dynamique_customapp_dupliquer
+    data:
+      icone: temp_ch
+      rainbow: "false"
+      scrollspeed: "50"
+      color: "{{ color }}"
+      duree: "25"
+      customapp: temp_cham
+      message: "{{ temp_cham }}"
+mode: single
