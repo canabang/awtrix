@@ -8,9 +8,23 @@ triggers:
 conditions: []
 actions:
   - variables:
-      temp_cham: |
-        {{ "Chambre" + " " + states('sensor.temperature_chambre')  + "°C" }}
-      color: "{% set state = states('sensor.temperature_chambre') %}  \n  {% if state >= '23' %}\n    #8b0000\t\n  {% elif state >= '19' %}\n    #2e8b57\n  {% else %}\n    #0000ff\n  {% endif %}\n"
+      # Constantes définies une seule fois
+      seuil_chaud: 23
+      seuil_confortable: 19
+      couleur_chaud: "#8b0000"
+      couleur_confortable: "#2e8b57"
+      couleur_froid: "#0000ff"
+      
+      temp_value: "{{ states('sensor.temperature_chambre') | float }}"
+      temp_cham: "{{ 'Chambre ' + (temp_value|round(1))|string + '°C' }}"
+      color: >
+        {% if temp_value >= seuil_chaud %}
+          {{ couleur_chaud }}
+        {% elif temp_value >= seuil_confortable %}
+          {{ couleur_confortable }}
+        {% else %}
+          {{ couleur_froid }}
+        {% endif %}
   - action: script.awtrix_dynamique_customapp_dupliquer
     data:
       icone: temp_ch
