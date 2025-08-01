@@ -1,0 +1,116 @@
+sequence:
+  - variables:
+      awtrix_topic_states: |
+        {% set awtrix_topic = namespace(states=[]) %} {% for state in states %}
+          {% if 'device_topic' in state.entity_id %}
+            {% set awtrix_topic.states = awtrix_topic.states + [state.state] %}
+          {% endif %}
+        {% endfor %} {{ awtrix_topic.states }}
+      end_topic: "{{ '/custom/' + customapp if customapp else '/notify' }}"
+  - repeat:
+      sequence:
+        - variables:
+            current_topic: "{{ repeat.item }}"
+        - data:
+            qos: 0
+            retain: false
+            topic: "{{current_topic}}{{ end_topic }}"
+            payload: |
+              {% if message %}
+              {
+                    "text": "{{ message }}",
+                    "icon": "{{ icone }}",
+                    "pushIcon": 0,
+                    "scrollSpeed": "{{ scrollspeed }}",
+                    "gradient": "{{ degrade }}",
+                    "rainbow": {{ rainbow }},
+                    "color": "{{ color }}",
+                    "duration": "{{ duree }}"
+              }
+              {% else %}
+              {}
+              {% endif %}
+          action: mqtt.publish
+          enabled: true
+      for_each: "{{ awtrix_topic_states }}"
+alias: awtrix dynamique customapp notify
+fields:
+  customapp:
+    selector:
+      text: null
+    name: customapp
+    description: nom de la customapp, laisser vide pour faire une notification
+    required: false
+  message:
+    selector:
+      text: null
+    name: message
+    description: message, laisser avec un "espace" pour effacer la customapp
+    required: false
+  icone:
+    selector:
+      text: null
+    name: icone
+    description: icone, le nom ou son numero dans l'awtrix
+    required: false
+    default: warning
+  rainbow:
+    selector:
+      text: null
+    name: rainbow
+    description: rainbow true/false
+    default: "false"
+    required: true
+  scrollspeed:
+    selector:
+      text: null
+    name: scrollSpeed
+    description: vitesse de defillement
+    default: "50"
+    required: true
+  degrade:
+    selector:
+      text: null
+    name: degradé
+    description: "degradé (2 couleurs #hexa ou rgb)"
+  color:
+    selector:
+      text: null
+    name: color
+    description: >-
+      couleur du texte string ou array "#FFFFFF" or [255,255,0], seagreen par
+      defaut
+    default: "#2e8b57"
+  duree:
+    selector:
+      text: null
+    name: duree
+    description: durée d'affichage de l'app ou de la notif
+    default: "25"
+    required: true
+description: >-
+  Cette automatisation permet d'envoyer des messages et des notifications à tous
+  les appareils Awtrix disponibles dans votre système Home Assistant. Elle offre
+  deux modes de fonctionnement:
+
+  1. Mode Notification: Envoi d'une notification temporaire (sans remplir le
+  champ "customapp")
+
+  2. Mode Application Personnalisée: Création ou mise à jour d'une application
+  personnalisée sur
+     vos appareils Awtrix (en spécifiant un nom dans le champ "customapp")
+
+  Le script détecte automatiquement tous les topics MQTT des appareils Awtrix et
+  envoie le message à chacun d'entre eux. Vous pouvez personnaliser entièrement
+  l'apparence du message (texte, icône, couleur, effets, vitesse de défilement,
+  etc.).
+
+  Pour supprimer une application personnalisée, spécifiez son nom dans le champ
+  "customapp" et mettez simplement un espace dans le champ "message".
+
+  Détails des paramètres du payload MQTT: - text: Texte à afficher sur l'Awtrix
+  - icon: Icône à afficher (nom ou numéro) - pushIcon: Position de l'icône (0 =
+  gauche, 1 = droite) - scrollSpeed: Vitesse de défilement du texte - gradient:
+  Dégradé de couleurs (format spécifique) - rainbow: Mode arc-en-ciel
+  (true/false) - color: Couleur du texte (hex ou RGB) - duration: Durée
+  d'affichage en secondes
