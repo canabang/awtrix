@@ -1,0 +1,19 @@
+- platform: template
+  sensors:
+    temperature_chambre:
+      friendly_name: "Température Chambre"
+      unit_of_measurement: "°C"
+      unique_id: temperature_chambre
+      value_template: >
+        {% set cap_temp = states('sensor.capcham_temperature') | float(0) %}
+        {% set esp_temp = states('sensor.esp_chambre_temperature') | float(0) %}
+        {% if cap_temp > 0 and esp_temp > 0 %}
+          {{ ((cap_temp + esp_temp) / 2) | round(2) }}
+        {% elif cap_temp > 0 %}
+          {{ cap_temp | round(2) }}
+        {% elif esp_temp > 0 %}
+          {{ esp_temp | round(2) }}
+        {% else %}
+          {{ 'unavailable' }}
+        {% endif %}
+      device_class: temperature
