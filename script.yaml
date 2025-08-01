@@ -5,7 +5,8 @@ sequence:
           {% if 'device_topic' in state.entity_id %}
             {% set awtrix_topic.states = awtrix_topic.states + [state.state] %}
           {% endif %}
-        {% endfor %} {{ awtrix_topic.states }}
+        {% endfor %} 
+        {{ awtrix_topic.states | unique | list  }}
       end_topic: "{{ '/custom/' + customapp if customapp else '/notify' }}"
   - repeat:
       sequence:
