@@ -139,7 +139,7 @@ actions:
         {% else %}
           {{ couleur_froid }}
         {% endif %}
-  - action: script.awtrix_dynamique_customapp_dupliquer
+  - action: script.awtrix_dynamique_customapp_dupliquer ### à adapter ###
     data:
       icone: temp_ch
       rainbow: "false"
