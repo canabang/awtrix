@@ -35,7 +35,7 @@ Copiez le contenu du fichier `script.yaml` dans votre configuration Home Assista
 ```yaml
 # Dans votre scripts.yaml ou configuration.yaml
 script:
-  awtrix_dynamique_customapp_dupliquer:
+  awtrix_dynamique_customapp:
     # [Collez ici le contenu du script]
 ```
 
@@ -46,7 +46,7 @@ Redémarrez Home Assistant pour charger le nouveau script.
 ### 3. Vérification
 
 Le script apparaîtra dans :
-- `Outils de développement` → `Services` → `script.awtrix_dynamique_customapp_dupliquer`
+- `Outils de développement` → `Services` → `script.awtrix_dynamique_customapp`
 
 ## 📖 Utilisation
 
@@ -57,7 +57,7 @@ Envoi d'une notification qui disparaît automatiquement :
 ```yaml
 # Exemple d'automatisation
 action:
-  - action: script.awtrix_dynamique_customapp_dupliquer
+  - action: script.awtrix_dynamique_customapp
     data:
       message: "Température: 22°C"
       icone: "thermometer"
@@ -71,7 +71,7 @@ Création/mise à jour d'une app permanente sur l'écran :
 
 ```yaml
 action:
-  - action: script.awtrix_dynamique_customapp_dupliquer
+  - action: script.awtrix_dynamique_customapp
     data:
       customapp: "meteo"
       message: "Ensoleillé 25°C"
@@ -86,7 +86,7 @@ Pour supprimer une application personnalisée :
 
 ```yaml
 action:
-  - action: script.awtrix_dynamique_customapp_dupliquer
+  - action: script.awtrix_dynamique_customapp
     data:
       customapp: "meteo"
       message: " "  # Un simple espace
@@ -139,7 +139,7 @@ actions:
         {% else %}
           {{ couleur_froid }}
         {% endif %}
-  - action: script.awtrix_dynamique_customapp_dupliquer ### à adapter ###
+  - action: script.awtrix_dynamique_customapp ### à adapter si besoin ###
     data:
       icone: temp_ch
       rainbow: "false"
@@ -262,7 +262,7 @@ En utilisant la même logique que l'exemple de température, vous pouvez créer 
 
 ```yaml
 # Test manuel pour vérifier la détection
-action: script.awtrix_dynamique_customapp_dupliquer
+action: script.awtrix_dynamique_customapp
 data:
   message: "Test"
   icone: "warning"
