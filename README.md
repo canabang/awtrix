@@ -16,6 +16,9 @@ Un script polyvalent pour envoyer des notifications et créer des applications p
 - Home Assistant avec intégration MQTT configurée
 - Un ou plusieurs appareils Awtrix connectés via MQTT
 - Les appareils Awtrix doivent avoir `device_topic` dans leur entity_id
+<img width="679" height="693" alt="image" src="https://github.com/user-attachments/assets/847089ec-e52d-41c4-a216-2c61c0e37529" />
+<img width="425" height="786" alt="image" src="https://github.com/user-attachments/assets/c32ac27f-232c-4005-8d55-b5079a1132e3" />
+
 
 ## 🚀 Installation
 
