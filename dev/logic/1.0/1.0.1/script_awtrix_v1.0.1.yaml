@@ -1,16 +1,22 @@
 # DESCRIPTION : Script de diffusion MQTT vers tous les appareils Awtrix.
 # LOGIQUE : Scanne les entités 'device_topic' et publie un payload JSON.
-# STATUT : Main (Production)
+# SNAPSHOT : v1.0.1
 
 sequence:
   - variables:
+      # Calcul complexe : Scanne toutes les entités pour isoler les topics MQTT des appareils Awtrix
       awtrix_topic_states: |
-        {% set awtrix_topic = namespace(states=[]) %} {% for state in states %}
+        {% set awtrix_topic = namespace(states=[]) %} 
+        {% for state in states %}
+          {# Filtrage des entités possédant l'attribut technique 'device_topic' #}
           {% if 'device_topic' in state.entity_id %}
             {% set awtrix_topic.states = awtrix_topic.states + [state.state] %}
           {% endif %}
         {% endfor %} 
+        {# Retourne une liste unique de topics MQTT cibles #}
         {{ awtrix_topic.states | unique | list  }}
+      
+      # Routage : Définit si le message est une notification (/notify) ou une application (/custom)
       end_topic: "{{ '/custom/' + customapp if customapp else '/notify' }}"
   - repeat:
       sequence:
@@ -97,25 +103,6 @@ description: >-
   Cette automatisation permet d'envoyer des messages et des notifications à tous
   les appareils Awtrix disponibles dans votre système Home Assistant. Elle offre
   deux modes de fonctionnement:
-
-  1. Mode Notification: Envoi d'une notification temporaire (sans remplir le
-  champ "customapp")
-
-  2. Mode Application Personnalisée: Création ou mise à jour d'une application
-  personnalisée sur
-     vos appareils Awtrix (en spécifiant un nom dans le champ "customapp")
-
-  Le script détecte automatiquement tous les topics MQTT des appareils Awtrix et
-  envoie le message à chacun d'entre eux. Vous pouvez personnaliser entièrement
-  l'apparence du message (texte, icône, couleur, effets, vitesse de défilement,
-  etc.).
-
-  Pour supprimer une application personnalisée, spécifiez son nom dans le champ
-  "customapp" et mettez simplement un espace dans le champ "message".
-
-  Détails des paramètres du payload MQTT: - text: Texte à afficher sur l'Awtrix
-  - icon: Icône à afficher (nom ou numéro) - pushIcon: Position de l'icône (0 =
-  gauche, 1 = droite) - scrollSpeed: Vitesse de défilement du texte - gradient:
-  Dégradé de couleurs (format spécifique) - rainbow: Mode arc-en-ciel
-  (true/false) - color: Couleur du texte (hex ou RGB) - duration: Durée
-  d'affichage en secondes
+  1. Mode Notification: Envoi d'une notification temporaire (sans remplir le champ "customapp")
+  2. Mode Application Personnalisée: Création ou mise à jour d'une application personnalisée sur vos appareils Awtrix (en spécifiant un nom dans le champ "customapp")
+mode: queued

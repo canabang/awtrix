@@ -1,26 +1,31 @@
 # DESCRIPTION : Automatisation d'affichage de température sur panneau Awtrix.
 # LOGIQUE : Déclenchement sur changement d'état du capteur thermique.
-# STATUT : Main (Production)
+# SNAPSHOT : v1.0.1
 
-alias: customapp temp_cham
-description: "Affichage de la température de la chambre"
+alias: customapp temp_awtrix
+description: "Affichage de la température sur matrice Awtrix"
 triggers:
   - entity_id:
-      - sensor.temperature_chambre
-    id: tempcham
+      - sensor.A_CHANGER_NOM_APPAREIL_temperature
+    id: temp_awtrix
     trigger: state
 conditions: []
 actions:
   - variables:
-      # Constantes définies une seule fois
+      # Seuils de confort thermique configurables
       seuil_chaud: 23
       seuil_confortable: 19
+      
+      # Codes couleurs hexadécimaux pour le panneau matriciel
       couleur_chaud: "#8b0000"
       couleur_confortable: "#2e8b57"
       couleur_froid: "#0000ff"
       
-      temp_value: "{{ states('sensor.temperature_chambre') | float }}"
-      temp_cham: "{{ 'Chambre ' + (temp_value|round(1))|string + '°C' }}"
+      # Récupération de la température et formatage de l'étiquette d'affichage
+      temp_value: "{{ states('sensor.A_CHANGER_NOM_APPAREIL_temperature') | float }}"
+      temp_label: "{{ 'Température ' + (temp_value|round(1))|string + '°C' }}"
+      
+      # Calcul dynamique de la couleur du texte selon les seuils définis
       color: >
         {% if temp_value >= seuil_chaud %}
           {{ couleur_chaud }}
@@ -36,7 +41,7 @@ actions:
       scrollspeed: "50"
       color: "{{ color }}"
       duree: "25"
-      customapp: temp_cham
-      message: "{{ temp_cham }}"
+      customapp: A_CHANGER_SLUG_APP
+      message: "{{ temp_label }}"
 mode: single
 

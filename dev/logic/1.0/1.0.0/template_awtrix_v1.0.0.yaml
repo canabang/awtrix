@@ -1,0 +1,24 @@
+# DESCRIPTION : Capteur de température composite (Moyenne ou repli).
+# LOGIQUE : Calcule la moyenne de deux capteurs ou utilise le premier disponible.
+# SNAPSHOT : v1.0.0
+
+- platform: template
+  sensors:
+    A_CHANGER_NOM_APPAREIL_temperature:
+      friendly_name: "Température A_CHANGER_NOM_HUMAIN"
+      unit_of_measurement: "°C"
+      unique_id: A_CHANGER_UNIQUE_ID_temperature
+      value_template: >
+        {% set cap_1 = states('sensor.A_CHANGER_CAPTEUR_1_temperature') | float(0) %}
+        {% set cap_2 = states('sensor.A_CHANGER_CAPTEUR_2_temperature') | float(0) %}
+        {% if cap_1 > 0 and cap_2 > 0 %}
+          {{ ((cap_1 + cap_2) / 2) | round(2) }}
+        {% elif cap_1 > 0 %}
+          {{ cap_1 | round(2) }}
+        {% elif cap_2 > 0 %}
+          {{ cap_2 | round(2) }}
+        {% else %}
+          {{ 'unavailable' }}
+        {% endif %}
+      device_class: temperature
+

@@ -1,6 +1,6 @@
 # DESCRIPTION : Script de diffusion MQTT vers tous les appareils Awtrix.
 # LOGIQUE : Scanne les entités 'device_topic' et publie un payload JSON.
-# STATUT : Main (Production)
+# SNAPSHOT : v1.0.0
 
 sequence:
   - variables:

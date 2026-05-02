@@ -1,0 +1,26 @@
+# 🛡️ ANTIGRAVITY WHITE-LIST (SNAPSHOT T5.2)
+
+# Tout ignorer par défaut
+*
+
+# Autoriser les répertoires
+!*/
+
+# Autoriser les fichiers sources et documentation
+!*.yaml
+!*.md
+
+# Autoriser les assets visuels
+!*.gif
+!*.jpg
+!*.png
+!*.jpeg
+
+# Ignorer les fichiers système et secrets
+.*
+!/.gitignore
+PROJET_RULES.md
+archives/
+
+# Exclusion du dossier personnel (Non-commit)
+perso/
