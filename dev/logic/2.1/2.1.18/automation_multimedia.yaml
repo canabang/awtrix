@@ -1,0 +1,36 @@
+# DESCRIPTION : Automatisation Multimédia intelligente pour Awtrix.
+# LOGIQUE : Détection dynamique Musique/Cinéma et noms d'apps uniques automatiques.
+# VERSION : 2.1.18
+# UI_READY : Copiez-collez ce contenu directement dans l'éditeur YAML d'une nouvelle automatisation.
+
+alias: "Awtrix : Smart Media Center"
+description: "Affiche musique et vidéo simultanément sur des apps différentes"
+trigger:
+  - platform: state
+    entity_id:
+      - media_player.A_CHANGER_SPOTIFY
+      - media_player.A_CHANGER_PLEX
+      - media_player.A_CHANGER_AUTANT_QUE_VOUS_VOULEZ
+action:
+  - action: script.awtrix_omni_logique_diffusion
+    data:
+      preset: multimedia
+      entite: "{{ trigger.entity_id }}"
+      # --- NOM DE L'APP DE BASE ---
+      customapp: >
+        {% if state_attr(trigger.entity_id, 'media_content_type') in ['movie', 'tvshow'] %}
+          cinema
+        {% else %}
+          musique
+        {% endif %}
+      # --- SÉCURITÉ ANTI-COLLISION ---
+      # Activez cette option pour que chaque lecteur ait sa propre application sur l'écran
+      suffixe_auto: true
+      # --- ÉCRASEMENT DYNAMIQUE DE L'ICÔNE ---
+      # On force 'plex' pour les films.
+      icone_perso: >
+        {% if state_attr(trigger.entity_id, 'media_content_type') == 'movie' %}
+          plex
+        {% endif %}
+mode: parallel
+max: 10
