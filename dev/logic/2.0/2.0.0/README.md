@@ -20,8 +20,8 @@ Ce framework modulaire pour matrices Awtrix centralise toute l'intelligence d'af
 Le script lit l'état de l'**Entité source** sélectionnée. Si aucune entité n'est fournie, il fonctionne en mode texte simple.
 
 ### 🏷️ Substitution Dynamique (Tags)
-Dans le champ **Message personnalisé**, vous pouvez injecter dynamiquement l'état de votre capteur en utilisant le tag `{{valeur}}`.
-*Exemple :* Si votre entité est un capteur d'humidité à 65%, écrire `Humidité : {{valeur}}` affichera `Humidité : 65%`.
+Dans le champ **Message personnalisé**, vous pouvez injecter dynamiquement l'état de votre capteur en utilisant le tag `[[valeur]]`.
+*Exemple :* Si votre entité est un capteur d'humidité à 65%, écrire `Humidité : [[valeur]]` affichera `Humidité : 65%`.
 
 ### 🌡️ Presets Intelligents (Logique Métier)
 Les presets automatisent la mise en forme selon le type de donnée :
@@ -30,7 +30,7 @@ Les presets automatisent la mise en forme selon le type de donnée :
     - Détecte l'unité de mesure (`°C` ou `°F`).
     - Arrondit la valeur à **1 décimale**.
     - Change la couleur dynamiquement : **Bleu** (<19°), **Vert** (Confort), **Rouge** (>23°).
-- **Générique** : Affiche l'état brut de l'entité (ex: "On/Off", "Ouvert", "1240W") avec une icône et une couleur standard. C'est le mode à utiliser si vous voulez juste déporter un affichage.
+- **Générique** : Affiche l'état brut de l'entité (ex: "On/Off", "Ouvert", "1240W") sans icône et en blanc par défaut. C'est le mode "page blanche" à personnaliser selon vos besoins.
 
 ---
 
@@ -44,6 +44,9 @@ Avant chaque envoi, le moteur vérifie l'état de l'entité `light.[nom]_matrix`
 
 ### ⏳ Gestion du "Lifetime" (Durée de vie)
 Réglable en **Minutes**. Idéal pour les rappels qui doivent disparaître après un temps donné (ex: laisser une alerte "Poubelle" pendant 60 minutes, puis l'effacer automatiquement).
+
+### 🗑️ Suppression d'une Application
+Pour supprimer manuellement une application personnalisée de l'écran, appelez le script avec le **Nom de l'App** rempli, mais laissez l'**Entité source** et le **Message personnalisé** vides.
 
 ---
 
