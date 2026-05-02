@@ -50,8 +50,3 @@ data:
 
 ---
 
-## 📜 GOUVERNANCE & MAINTENANCE
-Le fichier [PROJET_RULES.md](./PROJET_RULES.md) définit les règles de nomenclature et de sécurité applicables à ce dépôt. Toute modification de la logique doit impérativement faire l'objet d'un nouveau Snapshot dans `/dev/` avant pivot vers `Main`.
-
----
-*Développé avec ❤️ par Antigravity — Excellence Domotique.*
