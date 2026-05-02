@@ -1,6 +1,6 @@
 # DESCRIPTION : Moteur Omni-Logique pour matrices Awtrix.
 # LOGIQUE : Applique des presets métier et diffuse sur toutes les matrices actives.
-# VERSION : 2.1.2
+# VERSION : 2.1.5
 
 alias: "Awtrix Moteur v2.0.0"
 description: "Moteur universel pour l'affichage dynamique sur les matrices Awtrix."
@@ -14,9 +14,9 @@ fields:
       entity: {}
   preset:
     name: "Preset"
-    description: "Type de logique à appliquer"
+    description: "Type de logique à appliquer (Obligatoire)"
     default: "generique"
-    required: false
+    required: true
     selector:
       select:
         mode: dropdown
@@ -25,6 +25,12 @@ fields:
             value: "generique"
           - label: "Thermomètre"
             value: "thermometre"
+  customapp:
+    name: "Nom de l'App"
+    description: "Laisser vide pour une Notification"
+    required: false
+    selector:
+      text: {}
   message_perso:
     name: "Message personnalisé"
     description: "Écrase la valeur automatique. Utilisez {{valeur}} pour inclure l'état."
@@ -46,7 +52,6 @@ fields:
   rainbow:
     name: "Arc-en-ciel"
     description: "Texte en mode multicolore"
-    default: false
     required: false
     selector:
       boolean: {}
@@ -58,8 +63,7 @@ fields:
       text: {}
   position_icone:
     name: "Position Icône"
-    description: "0: Gauche, 1: Droite"
-    default: "0"
+    description: "0: Gauche (défaut), 1: Droite"
     required: false
     selector:
       select:
@@ -79,7 +83,7 @@ fields:
         max: 200
   duree:
     name: "Durée"
-    description: "Temps d'affichage (sec)"
+    description: "Temps d'affichage (sec). Note: Conflit possible avec 'Répétitions'."
     default: 25
     required: false
     selector:
@@ -88,7 +92,7 @@ fields:
         max: 300
   fond:
     name: "Arrière-plan"
-    description: "Couleur de fond (HEX #000000)"
+    description: "Couleur de fond (HEX, ex: #FF0000 pour du rouge)"
     required: false
     selector:
       text: {}
@@ -100,7 +104,7 @@ fields:
       text: {}
   repetitions:
     name: "Répétitions"
-    description: "Nombre de cycles de défilement"
+    description: "Nombre de cycles de défilement (Outrepasse souvent la 'Durée')"
     required: false
     selector:
       number:
@@ -108,28 +112,23 @@ fields:
         max: 10
   vie:
     name: "Durée de vie"
-    description: "Auto-suppression du message (sec)"
+    description: "Auto-suppression du message (en minutes, ex: 60 pour 1h)"
     required: false
     selector:
       number:
         min: 0
-        max: 3600
+        max: 1440
+        unit_of_measurement: "min"
   reveiller:
     name: "Réveiller l'écran"
     description: "Force l'affichage même si l'écran est OFF"
     required: false
     selector:
       boolean: {}
-  customapp:
-    name: "Nom de l'App"
-    description: "Laisser vide pour une Notification"
-    required: false
-    selector:
-      text: {}
 
 sequence:
   - variables:
-      # 1. Sécurisation de TOUTES les entrées (évite UndefinedError)
+      # 1. Sécurisation de TOUTES les entrées
       v_entite: "{{ entite | default(none) }}"
       v_preset: "{{ preset | default('generique') }}"
       v_msg_perso: "{{ message_perso | default('') }}"
@@ -143,7 +142,7 @@ sequence:
       v_fond: "{{ fond | default('') }}"
       v_son: "{{ son | default('') }}"
       v_repeat: "{{ repetitions | default(none) }}"
-      v_vie: "{{ vie | default(0) }}"
+      v_vie: "{{ (vie | default(0) | float * 60) | int }}"
       v_reveil: "{{ reveiller | default(false) }}"
       v_app: "{{ customapp | default('') }}"
 
