@@ -1,0 +1,50 @@
+# DESCRIPTION : Automatisation Thermique intelligente pour Awtrix.
+# LOGIQUE : Utilisation des Domain Triggers modernes pour une précision accrue.
+# VERSION : 2.1.18
+# UI_READY : Copiez-collez ce contenu directement dans l'éditeur YAML d'une nouvelle automatisation.
+
+alias: "Awtrix : Smart Thermal Center"
+description: "Affiche les températures via Domain Triggers (Modern Syntax)"
+triggers:
+  - trigger: temperature.changed
+    target:
+      entity_id: sensor.sejour
+    options:
+      threshold:
+        type: any
+    id: "sejour"
+  - trigger: temperature.changed
+    target:
+      entity_id: sensor.temperature_chambre
+    options:
+      threshold:
+        type: any
+    id: "chambre"
+  - trigger: temperature.changed
+    target:
+      entity_id: sensor.temperature_sdb
+    options:
+      threshold:
+        type: any
+    id: "sdb"
+condition:
+  - condition: template
+    value_template: "{{ states(trigger.entity_id) not in ['unavailable', 'unknown', 'none'] }}"
+action:
+  - action: script.awtrix_omni_logique_diffusion_notifications
+    data:
+      preset: thermometre
+      entite: "{{ trigger.entity_id }}"
+      # --- TEXTE : On met la première lettre en MAJUSCULE ---
+      message_perso: "{{ trigger.id | capitalize }} : [[valeur]]"
+      # --- NOM DE L'APP ---
+      customapp: "temp_{{ trigger.id | lower | replace(' ', '_') }}"
+      # --- ICÔNE : Différente par pièce ---
+      icone_perso: >
+        {% set mapping = {
+          'chambre': 'temp_ch',
+          'sdb': 'temp_sdb'
+        } %} {{ mapping.get(trigger.id, 'therm') }}
+      suffixe_auto: false
+mode: parallel
+max: 10

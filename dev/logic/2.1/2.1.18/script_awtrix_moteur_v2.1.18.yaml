@@ -1,92 +1,92 @@
-# DESCRIPTION : Moteur Omni-Logique pour matrices Awtrix.
-# LOGIQUE : Applique des presets métier et diffuse sur toutes les matrices actives.
-# VERSION : 2.1.18
-
+# ==============================================================================
+# 💎 MOTEUR OMNI-LOGIQUE AWTRIX (v2.1.18)
+# ==============================================================================
+# Ce script centralise la diffusion sur vos matrices. Il traite les données 
+# via des Presets (Thermomètre, Multimédia) et gère l'affichage multi-matrices.
+# ==============================================================================
 alias: "Awtrix Omni-Logique : Diffusion & Notifications"
-description: "Moteur universel pour l'affichage dynamique sur les matrices Awtrix."
-
+description: Moteur universel pour l'affichage dynamique sur les matrices Awtrix.
 mode: parallel
 max: 10
-
 fields:
   entite:
-    name: "Entité source"
-    description: "ID de l'entité à afficher"
+    name: Entité source
+    description: ID de l'entité à afficher
     required: false
     selector:
       entity: {}
   preset:
-    name: "Preset"
-    description: "Type de logique à appliquer (Obligatoire)"
-    default: "generique"
+    name: Preset
+    description: Type de logique à appliquer (Obligatoire)
+    default: generique
     required: true
     selector:
       select:
         mode: dropdown
         options:
-          - label: "Générique"
-            value: "generique"
-          - label: "Thermomètre"
-            value: "thermometre"
-          - label: "Multimédia"
-            value: "multimedia"
+          - label: Générique
+            value: generique
+          - label: Thermomètre
+            value: thermometre
+          - label: Multimédia
+            value: multimedia
   customapp:
-    name: "Nom de l'App"
-    description: "Laisser vide pour une Notification"
+    name: Nom de l'App
+    description: Laisser vide pour une Notification
     required: false
     selector:
       text: {}
   suffixe_auto:
-    name: "Suffixe unique"
-    description: "Ajoute l'ID de l'entité au nom de l'App pour éviter les collisions"
+    name: Suffixe unique
+    description: Ajoute l'ID de l'entité au nom de l'App pour éviter les collisions
     default: false
     required: false
     selector:
       boolean: {}
   message_perso:
-    name: "Message personnalisé"
-    description: "Écrase la valeur automatique. Utilisez [[valeur]] pour inclure l'état."
+    name: Message personnalisé
+    description: Écrase la valeur automatique. Utilisez [[valeur]] pour inclure l'état.
     required: false
     selector:
       text: {}
   icone_perso:
-    name: "Icône personnalisée"
-    description: "Écrase l'icône automatique"
+    name: Icône personnalisée
+    description: Écrase l'icône automatique
     required: false
     selector:
       text: {}
   couleur_perso:
-    name: "Couleur personnalisée"
+    name: Couleur personnalisée
     description: "Écrase la couleur automatique (HEX #FFFFFF)"
     required: false
     selector:
       text: {}
   rainbow:
-    name: "Arc-en-ciel"
-    description: "Texte en mode multicolore"
+    name: Arc-en-ciel
+    description: Texte en mode multicolore
     required: false
     selector:
       boolean: {}
   degrade:
-    name: "Dégradé"
+    name: Dégradé
     description: "Applique un dégradé (ex: [\"#FF0000\",\"#0000FF\"])"
     required: false
     selector:
       text: {}
   position_icone:
-    name: "Position Icône"
+    name: Position Icône
     description: "0: Gauche (défaut), 1: Droite"
     required: false
     selector:
       select:
         options:
-          - label: "Gauche"
+          - label: Gauche
             value: "0"
-          - label: "Droite"
+          - label: Droite
             value: "1"
   vitesse:
-    name: "Vitesse"
-    description: "Vitesse de défilement (50 par défaut)"
+    name: Vitesse
+    description: Vitesse de défilement (50 par défaut)
     default: 50
     required: false
     selector:
@@ -94,7 +94,7 @@ fields:
         min: 1
         max: 200
   duree:
-    name: "Durée"
+    name: Durée
     description: "Temps d'affichage (sec). Note: Conflit possible avec 'Répétitions'."
     default: 25
     required: false
@@ -103,42 +103,43 @@ fields:
         min: 1
         max: 300
   fond:
-    name: "Arrière-plan"
+    name: Arrière-plan
     description: "Couleur de fond (HEX, ex: #FF0000 pour du rouge)"
     required: false
     selector:
       text: {}
   son:
-    name: "Son"
-    description: "Nom du fichier son à jouer"
+    name: Son
+    description: Nom du fichier son à jouer
     required: false
     selector:
       text: {}
   repetitions:
-    name: "Répétitions"
-    description: "Nombre de cycles de défilement (Outrepasse souvent la 'Durée')"
+    name: Répétitions
+    description: Nombre de cycles de défilement (Outrepasse souvent la 'Durée')
     required: false
     selector:
       number:
         min: 0
         max: 10
   vie:
-    name: "Durée de vie"
+    name: Durée de vie
     description: "Auto-suppression du message (en minutes, ex: 60 pour 1h)"
     required: false
     selector:
       number:
         min: 0
         max: 1440
-        unit_of_measurement: "min"
+        unit_of_measurement: min
   reveiller:
-    name: "Réveiller l'écran"
-    description: "Force l'affichage même si l'écran est OFF"
+    name: Réveiller l'écran
+    description: Force l'affichage même si l'écran est OFF
     required: false
     selector:
       boolean: {}
-
 sequence:
+  # --- PRÉPARATION DES VARIABLES ---
+  # On mappe les champs du formulaire (fields) vers des variables internes.
   - variables:
       v_entite: "{{ entite | default(none) }}"
       v_preset: "{{ preset | default('generique') }}"
@@ -158,16 +159,16 @@ sequence:
       v_app: "{{ customapp | default('') }}"
       v_suffixe: "{{ suffixe_auto | default(false) }}"
       etat_brut: "{{ states(v_entite) if v_entite != none else '' }}"
-
-      # --- CALCUL DU NOM D'APP FINAL ---
-      v_app_finale: >-
+      # --- LOGIQUE DE DÉTERMINATION DU NOM DE L'APPLICATION ---
+      v_app_finale: |-
         {% if v_suffixe and v_app != '' and v_entite != none %}
           {{ v_app ~ "_" ~ v_entite.split('.')[-1] }}
         {% else %}
           {{ v_app }}
         {% endif %}
-
-      logique: >-
+      # --- LOGIQUE DES PRESETS (LE CŒUR DU CALCUL) ---
+      # Chaque preset définit son propre message, son icône et sa couleur.
+      logique: |-
         {% if v_preset == "generique" %}
           {% if v_entite == none and v_msg_perso == '' and v_app == '' %}
             {{ {"message": "Awtrix Omni-Logique", "icone": "", "couleur": "#FFFFFF", "rainbow": true, "wakeup": true} | to_json }}
@@ -212,9 +213,9 @@ sequence:
         {% else %}
           {{ {"message": etat_brut, "icone": "", "couleur": "#FFFFFF"} | to_json }}
         {% endif %}
-
+      # --- CONSTRUCTION DU MESSAGE FINAL (AVEC OVERRIDES) ---
       data_final: "{{ logique | trim | from_json }}"
-      message: >
+      message: |
         {% if v_msg_perso != '' %}
           {{ v_msg_perso | replace('[[valeur]]', data_final.message) }}
         {% else %}
@@ -225,8 +226,9 @@ sequence:
       f_rainbow: "{{ data_final.rainbow | default(v_rainbow) }}"
       f_reveil: "{{ data_final.wakeup | default(v_reveil) }}"
       end_topic: "{{ '/custom/' + v_app_finale if v_app_finale != '' else '/notify' }}"
+      # --- RÉCUPÉRATION DE LA LISTE DES MATRICES ---
       matrices: "{{ state_attr('sensor.awtrix_topics_list', 'liste_detaillee') }}"
-
+  # --- DIFFUSION MQTT SUR TOUTES LES MATRICES ---
   - repeat:
       for_each: "{{ matrices }}"
       sequence:
@@ -237,9 +239,8 @@ sequence:
             - action: mqtt.publish
               data:
                 topic: "{{ repeat.item.topic }}{{ end_topic }}"
-                payload: >
-                  {% if message | trim != "" %}
-                  {
+                payload: |
+                  {% if message | trim != "" %} {
                     "text": "{{ message }}",
                     "icon": "{{ icone }}",
                     "color": "{{ couleur }}",
@@ -254,7 +255,4 @@ sequence:
                     {% if v_vie | int(0) > 0 %}"lifetime": {{ v_vie }},{% endif %}
                     {% if f_reveil %}"wakeup": true,{% endif %}
                     "enabled": true
-                  }
-                  {% else %}
-                  {}
-                  {% endif %}
+                  } {% else %} {} {% endif %}

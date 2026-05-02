@@ -11,14 +11,22 @@ trigger:
       - media_player.A_CHANGER_SPOTIFY
       - media_player.A_CHANGER_PLEX
       - media_player.A_CHANGER_AUTANT_QUE_VOUS_VOULEZ
+condition:
+  # On ne déclenche que si l'état change OU si le titre change (morceau suivant).
+  # On continue d'ignorer les changements de position (toutes les secondes).
+  - condition: template
+    value_template: >
+      {{ trigger.from_state.state != trigger.to_state.state or
+         trigger.from_state.attributes.media_title != trigger.to_state.attributes.media_title }}
 action:
-  - action: script.awtrix_omni_logique_diffusion
+  - action: script.awtrix_omni_logique_diffusion_notifications
     data:
       preset: multimedia
       entite: "{{ trigger.entity_id }}"
       # --- NOM DE L'APP DE BASE ---
       customapp: >
-        {% if state_attr(trigger.entity_id, 'media_content_type') in ['movie', 'tvshow'] %}
+        {% if state_attr(trigger.entity_id, 'media_content_type') in ['movie',
+        'tvshow'] %}
           cinema
         {% else %}
           musique
