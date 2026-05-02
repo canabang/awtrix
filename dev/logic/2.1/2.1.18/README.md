@@ -55,7 +55,7 @@ Comprendre comment le moteur traite vos informations :
 ## 🌡️ Preset : Thermomètre Intelligent
 
 ### 🧠 Logique de Traitement
--   **Analyse d'Unité** : Le moteur récupère l'unité définie dans Home Assistant (°C, °F, %). Utile pour les capteurs mixtes (Température/Humidité).
+-   **Analyse d'Unité** : Le moteur récupère automatiquement l'unité définie dans Home Assistant (°C ou °F).
 -   **Formatage** : Arrondi automatique à **1 décimale** pour une lisibilité optimale sur matrice LED.
 -   **Colorimétrie par défaut** : 
     - 🔵 **Bleu (`#0000FF`)** : Température ≤ 19°C.
@@ -105,7 +105,7 @@ L'application multimédia suit strictement l'état du lecteur :
 ---
 
 ## 📦 Installation
-1.  **Médias** : Copiez le dossier `/images` sur votre matrice Awtrix.
+1.  **Médias** : Copiez le contenu du dossier `/images` sur votre matrice Awtrix dans le dossier icons (via son interface web).
 2.  **Discovery** : Installez le sensor `awtrix_topics_template.yaml`.
 3.  **Moteur** : Déployez le script `script_awtrix_moteur_v2.1.18.yaml`.
 4.  **Automation** : Copiez le modèle `automation_multimedia.yaml`.
