@@ -1,6 +1,6 @@
 # DESCRIPTION : Sensor de découverte dynamique et de santé des matrices Awtrix.
 # LOGIQUE : Scanne les entités 'device_topic' et enrichit les attributs avec l'état des écrans.
-# VERSION : 2.1.15
+# VERSION : 2.1.16
 # COMPATIBILITÉ : Awtrix 3 / Home Assistant 2024.x+
 
 - sensor:
