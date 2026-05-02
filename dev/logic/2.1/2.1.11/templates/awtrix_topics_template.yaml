@@ -1,0 +1,46 @@
+# DESCRIPTION : Sensor de découverte dynamique et de santé des matrices Awtrix.
+# LOGIQUE : Scanne les entités 'device_topic' et enrichit les attributs avec l'état des écrans.
+# VERSION : 2.1.11
+# COMPATIBILITÉ : Awtrix 3 / Home Assistant 2024.x+
+
+- sensor:
+    - name: "Awtrix Topics List"
+      unique_id: awtrix_topics_list
+      icon: mdi:mqtt
+      state: >
+        {% set topics = namespace(items=[]) %} {% for s in states.sensor |
+        selectattr('entity_id', 'search', 'device_topic') %}
+          {% set topics.items = topics.items + [s.state] %}
+        {% endfor %} {% for s in states.input_text | selectattr('entity_id',
+        'search', 'device_topic') %}
+          {% set topics.items = topics.items + [s.state] %}
+        {% endfor %} {{ topics.items | unique | list | to_json }}
+      attributes:
+        compteur: >
+          {% set count = namespace(total=0) %} {% for s in states.sensor |
+          selectattr('entity_id', 'search', 'device_topic') %}{% set count.total
+          = count.total + 1 %}{% endfor %} {% for s in states.input_text |
+          selectattr('entity_id', 'search', 'device_topic') %}{% set count.total
+          = count.total + 1 %}{% endfor %} {{ count.total }}
+        liste_detaillee: >
+          {% set results = namespace(items=[]) %} {% for s in states.sensor |
+          selectattr('entity_id', 'search', 'device_topic') %}
+            {% set id = s.entity_id.split('.')[-1].replace('_device_topic', '') %}
+            {% set light_id = 'light.' ~ id ~ '_matrix' %}
+            {% set results.items = results.items + [{"id": id, "topic": s.state, "lumiere": light_id, "etat": states(light_id)}] %}
+          {% endfor %} {% for s in states.input_text | selectattr('entity_id',
+          'search', 'device_topic') %}
+            {% set id = s.entity_id.split('.')[-1].replace('_device_topic', '') %}
+            {% set light_id = 'light.' ~ id ~ '_matrix' %}
+            {% set results.items = results.items + [{"id": id, "topic": s.state, "lumiere": light_id, "etat": states(light_id)}] %}
+          {% endfor %} {{ results.items | list | to_json }}
+        matrices_actives: >
+          {% set count = namespace(on=0) %} {% for s in states.sensor |
+          selectattr('entity_id', 'search', 'device_topic') %}
+            {% set id = s.entity_id.split('.')[-1].replace('_device_topic', '') %}
+            {% if is_state('light.' ~ id ~ '_matrix', 'on') %}{% set count.on = count.on + 1 %}{% endif %}
+          {% endfor %} {% for s in states.input_text | selectattr('entity_id',
+          'search', 'device_topic') %}
+            {% set id = s.entity_id.split('.')[-1].replace('_device_topic', '') %}
+            {% if is_state('light.' ~ id ~ '_matrix', 'on') %}{% set count.on = count.on + 1 %}{% endif %}
+          {% endfor %} {{ count.on }}

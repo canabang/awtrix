@@ -2,7 +2,7 @@
 # LOGIQUE : Applique des presets métier et diffuse sur toutes les matrices actives.
 # VERSION : 2.1.11
 
-alias: "Awtrix Moteur v2.0.0"
+alias: "Awtrix Omni-Logique : Diffusion & Notifications"
 description: "Moteur universel pour l'affichage dynamique sur les matrices Awtrix."
 
 fields:
