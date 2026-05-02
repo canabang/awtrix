@@ -1,0 +1,214 @@
+# DESCRIPTION : Moteur Omni-Logique pour matrices Awtrix.
+# LOGIQUE : Applique des presets métier et diffuse sur toutes les matrices actives.
+# VERSION : 2.1.2
+
+alias: "Awtrix Moteur v2.0.0"
+description: "Moteur universel pour l'affichage dynamique sur les matrices Awtrix."
+
+fields:
+  entite:
+    name: "Entité source"
+    description: "ID de l'entité à afficher"
+    required: false
+    selector:
+      entity: {}
+  preset:
+    name: "Preset"
+    description: "Type de logique à appliquer"
+    default: "generique"
+    required: false
+    selector:
+      select:
+        mode: dropdown
+        options:
+          - label: "Générique"
+            value: "generique"
+          - label: "Thermomètre"
+            value: "thermometre"
+  message_perso:
+    name: "Message personnalisé"
+    description: "Écrase la valeur automatique. Utilisez {{valeur}} pour inclure l'état."
+    required: false
+    selector:
+      text: {}
+  icone_perso:
+    name: "Icône personnalisée"
+    description: "Écrase l'icône automatique"
+    required: false
+    selector:
+      text: {}
+  couleur_perso:
+    name: "Couleur personnalisée"
+    description: "Écrase la couleur automatique (HEX #FFFFFF)"
+    required: false
+    selector:
+      text: {}
+  rainbow:
+    name: "Arc-en-ciel"
+    description: "Texte en mode multicolore"
+    default: false
+    required: false
+    selector:
+      boolean: {}
+  degrade:
+    name: "Dégradé"
+    description: "Applique un dégradé (ex: [\"#FF0000\",\"#0000FF\"])"
+    required: false
+    selector:
+      text: {}
+  position_icone:
+    name: "Position Icône"
+    description: "0: Gauche, 1: Droite"
+    default: "0"
+    required: false
+    selector:
+      select:
+        options:
+          - label: "Gauche"
+            value: "0"
+          - label: "Droite"
+            value: "1"
+  vitesse:
+    name: "Vitesse"
+    description: "Vitesse de défilement (50 par défaut)"
+    default: 50
+    required: false
+    selector:
+      number:
+        min: 1
+        max: 200
+  duree:
+    name: "Durée"
+    description: "Temps d'affichage (sec)"
+    default: 25
+    required: false
+    selector:
+      number:
+        min: 1
+        max: 300
+  fond:
+    name: "Arrière-plan"
+    description: "Couleur de fond (HEX #000000)"
+    required: false
+    selector:
+      text: {}
+  son:
+    name: "Son"
+    description: "Nom du fichier son à jouer"
+    required: false
+    selector:
+      text: {}
+  repetitions:
+    name: "Répétitions"
+    description: "Nombre de cycles de défilement"
+    required: false
+    selector:
+      number:
+        min: 0
+        max: 10
+  vie:
+    name: "Durée de vie"
+    description: "Auto-suppression du message (sec)"
+    required: false
+    selector:
+      number:
+        min: 0
+        max: 3600
+  reveiller:
+    name: "Réveiller l'écran"
+    description: "Force l'affichage même si l'écran est OFF"
+    required: false
+    selector:
+      boolean: {}
+  customapp:
+    name: "Nom de l'App"
+    description: "Laisser vide pour une Notification"
+    required: false
+    selector:
+      text: {}
+
+sequence:
+  - variables:
+      # 1. Sécurisation de TOUTES les entrées (évite UndefinedError)
+      v_entite: "{{ entite | default(none) }}"
+      v_preset: "{{ preset | default('generique') }}"
+      v_msg_perso: "{{ message_perso | default('') }}"
+      v_ico_perso: "{{ icone_perso | default('') }}"
+      v_clr_perso: "{{ couleur_perso | default('') }}"
+      v_rainbow: "{{ rainbow | default(false) }}"
+      v_degrade: "{{ degrade | default('') }}"
+      v_pos_ico: "{{ position_icone | default('0') }}"
+      v_vitesse: "{{ vitesse | default(50) }}"
+      v_duree: "{{ duree | default(25) }}"
+      v_fond: "{{ fond | default('') }}"
+      v_son: "{{ son | default('') }}"
+      v_repeat: "{{ repetitions | default(none) }}"
+      v_vie: "{{ vie | default(0) }}"
+      v_reveil: "{{ reveiller | default(false) }}"
+      v_app: "{{ customapp | default('') }}"
+
+      # 2. Récupération des données brutes
+      etat_brut: "{{ states(v_entite) if v_entite != none else '' }}"
+
+      # 3. Logique du Preset
+      logique: >-
+        {% if v_preset == "thermometre" and v_entite != none %}
+          {% set val = etat_brut | float(none) %}
+          {% if val != none %}
+            {% set unit = state_attr(v_entite, 'unit_of_measurement') | default('°C') %}
+            {% set msg = (val | round(1) | string) ~ unit %}
+            {% set clr = "#ff0000" if val >= 23 else ("#0000ff" if val <= 19 else "#2e8b57") %}
+            {{ {"message": msg, "icone": "therm", "couleur": clr} | to_json }}
+          {% else %}
+            {{ {"message": "", "icone": "therm", "couleur": "#2e8b57"} | to_json }}
+          {% endif %}
+        {% else %}
+          {{ {"message": etat_brut, "icone": "warning", "couleur": "#2e8b57"} | to_json }}
+        {% endif %}
+
+      # 4. Calcul Final
+      data_final: "{{ logique | trim | from_json }}"
+      message: >
+        {% if v_msg_perso != '' %}
+          {{ v_msg_perso | replace('{{valeur}}', data_final.message) }}
+        {% else %}
+          {{ data_final.message }}
+        {% endif %}
+      icone: "{{ v_ico_perso if v_ico_perso != '' else data_final.icone }}"
+      couleur: "{{ v_clr_perso if v_clr_perso != '' else data_final.couleur }}"
+      
+      # 5. Destination & Santé
+      end_topic: "{{ '/custom/' + v_app if v_app != '' else '/notify' }}"
+      matrices: "{{ state_attr('sensor.awtrix_topics_list', 'liste_detaillee') }}"
+
+  - repeat:
+      for_each: "{{ matrices }}"
+      sequence:
+        - if:
+            - condition: template
+              value_template: "{{ repeat.item.etat == 'on' or v_reveil }}"
+          then:
+            - action: mqtt.publish
+              data:
+                topic: "{{ repeat.item.topic }}{{ end_topic }}"
+                payload: >
+                  {% if message | trim != "" %}
+                  {
+                    "text": "{{ message }}",
+                    "icon": "{{ icone }}",
+                    "color": "{{ couleur }}",
+                    "duration": {{ v_duree }},
+                    "scrollSpeed": {{ v_vitesse }},
+                    "pushIcon": {{ v_pos_ico }},
+                    {% if v_rainbow %}"rainbow": true,{% endif %}
+                    {% if v_degrade != '' %}"gradient": {{ v_degrade }},{% endif %}
+                    {% if v_fond != '' %}"background": "{{ v_fond }}",{% endif %}
+                    {% if v_son != '' %}"sound": "{{ v_son }}",{% endif %}
+                    {% if v_repeat != none %}"repeat": {{ v_repeat }},{% endif %}
+                    {% if v_vie | int(0) > 0 %}"lifetime": {{ v_vie }},{% endif %}
+                    {% if v_reveil %}"wakeup": true,{% endif %}
+                    "enabled": true
+                  }
+                  {% else %}
+                  {}
+                  {% endif %}
